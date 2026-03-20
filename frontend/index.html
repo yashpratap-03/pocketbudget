@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PocketBudget</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>PocketBudget</h1>
+      <p>Simple Expense Tracker</p>
+    </header>
+
+    <main class="grid">
+      <section class="card">
+        <h2>Add Expense</h2>
+        <form id="expenseForm">
+          <label for="amount">Amount</label>
+          <input type="number" id="amount" name="amount" step="0.01" required />
+
+          <label for="category">Category</label>
+          <input type="text" id="category" name="category" placeholder="e.g. Food" required />
+
+          <label for="date">Date</label>
+          <input type="date" id="date" name="date" required />
+
+          <label for="note">Note</label>
+          <input type="text" id="note" name="note" placeholder="Optional note" />
+
+          <button type="submit">Add Expense</button>
+        </form>
+
+        <p id="message"></p>
+      </section>
+
+      <section class="card">
+        <h2>Summary</h2>
+        <div class="summary">
+          <div class="summary-box">
+            <span>Total Expenses</span>
+            <strong id="totalAmount">€0.00</strong>
+          </div>
+          <div class="summary-box">
+            <span>Number of Entries</span>
+            <strong id="expenseCount">0</strong>
+          </div>
+        </div>
+
+        <h3>Totals by Category</h3>
+        <ul id="categoryTotals" class="category-list"></ul>
+      </section>
+    </main>
+
+    <section class="card">
+      <h2>All Expenses</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Amount</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody id="expenseTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
