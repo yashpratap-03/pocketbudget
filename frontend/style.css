@@ -44,7 +44,8 @@ body {
   margin-bottom: 20px;
 }
 
-h2, h3 {
+h2,
+h3 {
   margin-top: 0;
 }
 
@@ -119,7 +120,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   text-align: left;
   padding: 12px 10px;
   border-bottom: 1px solid #e5e7eb;
@@ -151,4 +153,29 @@ th {
   .header h1 {
     font-size: 1.6rem;
   }
+}
+button {
+  transition: all 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+button {
+  background: #111827;
+}
+
+button:hover {
+  background: #1f2937;
+}
+
+td button {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  background: #dc2626;
+}
+
+td button:hover {
+  background: #b91c1c;
 }

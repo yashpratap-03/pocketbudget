@@ -88,7 +88,7 @@ app.get("/expenses", (req, res) => {
   }
   if (category) {
     expenses = expenses.filter(
-      (e) => e.category.toLowerCase() === String(category).toLowerCase()
+      (e) => e.category.toLowerCase() === String(category).toLowerCase(),
     );
   }
 
@@ -98,7 +98,8 @@ app.get("/expenses", (req, res) => {
   // Category totals
   const totalsByCategory = {};
   for (const e of expenses) {
-    totalsByCategory[e.category] = (totalsByCategory[e.category] || 0) + e.amount;
+    totalsByCategory[e.category] =
+      (totalsByCategory[e.category] || 0) + e.amount;
   }
 
   res.json({

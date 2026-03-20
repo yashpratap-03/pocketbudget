@@ -23,13 +23,25 @@ async function loadExpenses() {
     });
 
     expenseTableBody.innerHTML = "";
+
+    if (data.expenses.length === 0) {
+      expenseTableBody.innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align:center; padding:20px;">
+            No expenses yet. Add your first one 👆
+        </td>
+        </tr>
+      `;
+      return;
+    }
     data.expenses.forEach((expense) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${expense.date}</td>
+        <td>${new Date(expense.date).toLocaleDateString()}</td>
         <td>${expense.category}</td>
         <td>€${Number(expense.amount).toFixed(2)}</td>
         <td>${expense.note || "-"}</td>
+        <td><button onclick="deleteExpense('${expense.id}')">Delete</button></td>
       `;
       expenseTableBody.appendChild(row);
     });
@@ -73,3 +85,19 @@ expenseForm.addEventListener("submit", async (event) => {
 });
 
 loadExpenses();
+async function deleteExpense(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/expenses/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error("Delete failed");
+    }
+
+    loadExpenses();
+  } catch (error) {
+    console.error(error);
+    alert("Error deleting expense");
+  }
+}

@@ -6,13 +6,5 @@
     "date": "2026-01-30",
     "note": "Lunch",
     "createdAt": "2026-03-20T13:52:58.880Z"
-  },
-  {
-    "id": "8413ff32-34d5-4de4-9482-2f12601e6087",
-    "amount": 100,
-    "category": "travel",
-    "date": "2001-12-01",
-    "note": "test",
-    "createdAt": "2026-03-20T13:56:35.526Z"
   }
 ]
