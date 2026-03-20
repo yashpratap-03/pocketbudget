@@ -3,91 +3,216 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PocketBudget</title>
+    <title>PocketBudget – Expense Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="container">
-      <header class="header">
-        <h1>PocketBudget</h1>
-        <p>Simple Expense Tracker</p>
-      </header>
 
-      <main class="grid">
-        <section class="card">
-          <h2>Add Expense</h2>
-          <form id="expenseForm">
-            <label for="amount">Amount</label>
-            <input
-              type="number"
-              id="amount"
-              name="amount"
-              step="0.01"
-              required
-            />
+    <!-- Toast notification container -->
+    <div id="toast-container" aria-live="polite"></div>
 
-            <label for="category">Category</label>
-            <input
-              type="text"
-              id="category"
-              name="category"
-              placeholder="e.g. Food"
-              required
-            />
+    <div class="app-shell">
 
-            <label for="date">Date</label>
-            <input type="date" id="date" name="date" required />
+      <!-- ── Sidebar ──────────────────────────────────── -->
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <span class="brand-icon">◈</span>
+          <span class="brand-name">PocketBudget</span>
+        </div>
 
-            <label for="note">Note</label>
-            <input
-              type="text"
-              id="note"
-              name="note"
-              placeholder="Optional note"
-            />
+        <nav class="sidebar-nav">
+          <a href="#" class="nav-item active">
+            <span class="nav-icon">⊞</span> Dashboard
+          </a>
+          <a href="#add-section" class="nav-item">
+            <span class="nav-icon">+</span> Add Expense
+          </a>
+          <a href="#table-section" class="nav-item">
+            <span class="nav-icon">≡</span> All Expenses
+          </a>
+        </nav>
 
-            <button type="submit">Add Expense</button>
-          </form>
+        <div class="sidebar-footer">
+          <p class="sidebar-course">DLBCSPJWD01</p>
+          <p class="sidebar-author">Yash Pratap Singh</p>
+        </div>
+      </aside>
 
-          <p id="message"></p>
+      <!-- ── Main Content ─────────────────────────────── -->
+      <main class="main-content">
+
+        <!-- Top Bar -->
+        <header class="topbar">
+          <div class="topbar-left">
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-sub" id="currentDate"></p>
+          </div>
+          <div class="topbar-right">
+            <button id="exportBtn" class="btn-outline" title="Export to CSV">
+              ↓ Export CSV
+            </button>
+          </div>
+        </header>
+
+        <!-- ── Stat Cards ─────────────────────────────── -->
+        <section class="stats-grid" aria-label="Summary statistics">
+          <div class="stat-card accent-green">
+            <div class="stat-top">
+              <span class="stat-label">Total Spent</span>
+              <span class="stat-icon-badge">💸</span>
+            </div>
+            <strong id="totalAmount" class="stat-value">€0.00</strong>
+            <span class="stat-sub" id="budgetSubline">No budget set</span>
+          </div>
+          <div class="stat-card accent-blue">
+            <div class="stat-top">
+              <span class="stat-label">Transactions</span>
+              <span class="stat-icon-badge">📋</span>
+            </div>
+            <strong id="expenseCount" class="stat-value">0</strong>
+            <span class="stat-sub">entries logged</span>
+          </div>
+          <div class="stat-card accent-amber">
+            <div class="stat-top">
+              <span class="stat-label">Avg per Entry</span>
+              <span class="stat-icon-badge">📊</span>
+            </div>
+            <strong id="avgAmount" class="stat-value">€0.00</strong>
+            <span class="stat-sub">per transaction</span>
+          </div>
+          <div class="stat-card accent-purple">
+            <div class="stat-top">
+              <span class="stat-label">Top Category</span>
+              <span class="stat-icon-badge">🏆</span>
+            </div>
+            <strong id="topCategory" class="stat-value">—</strong>
+            <span class="stat-sub" id="topCategoryAmt"></span>
+          </div>
         </section>
 
-        <section class="card">
-          <h2>Summary</h2>
-          <div class="summary">
-            <div class="summary-box">
-              <span>Total Expenses</span>
-              <strong id="totalAmount">€0.00</strong>
+        <!-- Budget Progress Bar (shown only when budget is set) -->
+        <div id="budgetProgressSection" class="budget-progress-card hidden">
+          <div class="bp-header">
+            <span class="bp-title">Monthly Budget</span>
+            <span id="budgetProgressLabel" class="bp-label">€0 / €0</span>
+          </div>
+          <div class="bp-track" role="progressbar" aria-label="Budget progress">
+            <div id="budgetProgressBar" class="bp-fill"></div>
+          </div>
+          <p id="budgetWarning" class="bp-warning hidden">⚠ Over budget!</p>
+        </div>
+
+        <!-- ── Two-column layout ────────────────────────── -->
+        <div class="content-grid">
+
+          <!-- LEFT: Add form + Budget setter -->
+          <div class="left-col" id="add-section">
+
+            <div class="card">
+              <div class="card-header">
+                <h2>Add Expense</h2>
+              </div>
+              <form id="expenseForm" novalidate>
+
+                <div class="form-group">
+                  <label for="amount">Amount (€)</label>
+                  <div class="input-prefix-wrap">
+                    <span class="input-prefix">€</span>
+                    <input type="number" id="amount" name="amount"
+                      step="0.01" min="0.01" placeholder="0.00" required />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="category">Category</label>
+                  <select id="category" name="category" required>
+                    <option value="" disabled selected>Select a category…</option>
+                    <option value="Food">🍔 Food</option>
+                    <option value="Transport">🚗 Transport</option>
+                    <option value="Housing">🏠 Housing</option>
+                    <option value="Entertainment">🎬 Entertainment</option>
+                    <option value="Health">💊 Health</option>
+                    <option value="Shopping">🛍 Shopping</option>
+                    <option value="Education">📚 Education</option>
+                    <option value="Other">📦 Other</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="date">Date</label>
+                  <input type="date" id="date" name="date" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="note">Note <span class="optional-tag">optional</span></label>
+                  <input type="text" id="note" name="note" placeholder="e.g. Lunch with team" />
+                </div>
+
+                <button type="submit" class="btn-primary">
+                  <span>Add Expense</span>
+                </button>
+              </form>
             </div>
-            <div class="summary-box">
-              <span>Number of Entries</span>
-              <strong id="expenseCount">0</strong>
+
+            <!-- Budget Setter -->
+            <div class="card budget-setter-card">
+              <div class="card-header">
+                <h2>Monthly Budget</h2>
+              </div>
+              <p class="card-desc">Set a spending limit to track your progress.</p>
+              <div class="budget-row">
+                <div class="input-prefix-wrap" style="flex:1">
+                  <span class="input-prefix">€</span>
+                  <input type="number" id="budgetInput" min="1" step="0.01" placeholder="e.g. 1000" />
+                </div>
+                <button id="setBudgetBtn" class="btn-secondary">Set Budget</button>
+              </div>
+              <button id="clearBudgetBtn" class="btn-ghost btn-sm">Clear budget</button>
             </div>
           </div>
 
-          <h3>Totals by Category</h3>
-          <ul id="categoryTotals" class="category-list"></ul>
-        </section>
-      </main>
-
-      <section class="card">
-        <h2>All Expenses</h2>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Category</th>
-                <th>Amount</th>
-                <th>Note</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="expenseTableBody"></tbody>
-          </table>
+          <!-- RIGHT: Summary chart + filter -->
+          <div class="right-col">
+            <div class="card chart-card">
+              <div class="card-header chart-header">
+                <h2>Spending by Category</h2>
+                <div class="filter-row">
+                  <input type="month" id="monthFilter" title="Filter by month" />
+                  <button id="clearFilter" class="btn-ghost btn-sm">Clear</button>
+                </div>
+              </div>
+              <div id="categoryChart" class="category-chart"></div>
+            </div>
+          </div>
         </div>
-      </section>
-    </div>
+
+        <!-- ── Expense Table ──────────────────────────── -->
+        <section class="card table-card" id="table-section">
+          <div class="card-header table-card-header">
+            <h2>All Expenses</h2>
+            <span id="filteredNote" class="filter-chip hidden"></span>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                  <th>Note</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="expenseTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+      </main><!-- /main-content -->
+    </div><!-- /app-shell -->
 
     <script src="app.js"></script>
   </body>
