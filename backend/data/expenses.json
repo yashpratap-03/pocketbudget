@@ -14,5 +14,21 @@
     "date": "2026-03-02",
     "note": "House Rent",
     "createdAt": "2026-03-25T07:48:02.050Z"
+  },
+  {
+    "id": "19a10638-8632-4480-abf1-51385ebc3af1",
+    "amount": 200,
+    "category": "Food",
+    "date": "2026-03-10",
+    "note": "Groceries and eat food outside",
+    "createdAt": "2026-03-25T07:56:48.872Z"
+  },
+  {
+    "id": "cdd7a431-2499-4349-a636-f6720e2afe4f",
+    "amount": 100,
+    "category": "Entertainment",
+    "date": "2026-03-12",
+    "note": "All the Subscriptions",
+    "createdAt": "2026-03-25T07:57:30.988Z"
   }
 ]

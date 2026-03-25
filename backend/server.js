@@ -10,6 +10,9 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json());
 
+const FRONTEND_DIR = path.join(__dirname, "..", "frontend");
+app.use(express.static(FRONTEND_DIR));
+
 const DATA_FILE = path.join(__dirname, "data", "expenses.json");
 
 // Helpers
@@ -28,15 +31,12 @@ function writeExpenses(expenses) {
 
 // Root
 app.get("/", (req, res) => {
-  res.send("PocketBudget backend is running ✅ Try /health or /expenses");
+  res.sendFile(path.join(FRONTEND_DIR, "index.html"));
 });
 
 // Health
 app.get("/health", (req, res) => {
   res.json({ status: "ok", message: "PocketBudget backend is running ✅" });
-});
-app.get("/", (req, res) => {
-  res.send("PocketBudget backend is running ✅ Try /health");
 });
 /**
  * POST /expenses
