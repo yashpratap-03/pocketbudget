@@ -1,5 +1,17 @@
 {
-  "dependencies": {
-    "uuid": "^13.0.0"
+  "name": "pocketbudget",
+  "version": "1.0.0",
+  "description": "PocketBudget — Expense Tracker Web App (DLBCSPJWD01)",
+  "author": "Yash Pratap Singh",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm --prefix backend install",
+    "start": "npm --prefix backend start",
+    "dev": "npm --prefix backend run dev",
+    "test": "npm --prefix backend test"
+  },
+  "engines": {
+    "node": ">=18.13.0"
   }
 }

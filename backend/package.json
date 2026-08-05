@@ -1,15 +1,25 @@
 {
-  "name": "backend",
+  "name": "pocketbudget-backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Express REST API and static file server for PocketBudget (DLBCSPJWD01)",
+  "main": "server.js",
+  "author": "Yash Pratap Singh",
+  "license": "MIT",
+  "private": true,
   "scripts": {
+    "start": "node server.js",
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "test": "node --test test/"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "expense-tracker",
+    "express",
+    "rest-api",
+    "dlbcspjwd01"
+  ],
+  "engines": {
+    "node": ">=18.13.0"
+  },
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.2.1"
