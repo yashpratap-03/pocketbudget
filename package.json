@@ -9,7 +9,9 @@
     "postinstall": "npm --prefix backend install",
     "start": "npm --prefix backend start",
     "dev": "npm --prefix backend run dev",
-    "test": "npm --prefix backend test"
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "npm --prefix backend test",
+    "test:frontend": "npm --prefix frontend test"
   },
   "engines": {
     "node": ">=18.13.0"

@@ -30,7 +30,7 @@
 
 - **HTML5** – semantic markup
 - **CSS3** – custom properties (design tokens), CSS Grid, Flexbox, animations
-- **JavaScript (ES2022, vanilla)** – fetch API, DOM manipulation, localStorage
+- **JavaScript (ES2022, vanilla)** – native ES modules, fetch API, DOM manipulation, localStorage
 
 ### Backend
 
@@ -51,20 +51,88 @@
 ```
 pocketbudget/
 ├── backend/
-│   ├── data/
-│   │   └── expenses.json      # Persistent data store
-│   ├── test/
-│   │   └── api.test.js        # Automated API test suite (47 tests)
-│   ├── server.js              # Express app, validation & API routes
+│   ├── server.js                    # Entry point: starts and stops the HTTP server
+│   ├── src/
+│   │   ├── app.js                   # Builds the Express app and wires the layers together
+│   │   ├── config/index.js          # Port, paths, categories, input limits
+│   │   ├── routes/
+│   │   │   ├── expenseRoutes.js     # GET / POST / DELETE /expenses (HTTP only)
+│   │   │   └── systemRoutes.js      # GET /health, GET /api/categories
+│   │   ├── validation/
+│   │   │   └── expenseValidation.js # Pure validation rules for incoming data
+│   │   ├── services/
+│   │   │   └── expenseService.js    # Business logic: create, filter, total, delete
+│   │   ├── storage/
+│   │   │   └── expenseStore.js      # JSON file access with atomic writes
+│   │   ├── middleware/
+│   │   │   └── errorHandlers.js     # JSON 404 and central error handler
+│   │   └── utils/money.js           # Rounding helper
+│   ├── data/expenses.json           # Persistent data store
+│   ├── test/                        # API, validation and service tests
 │   └── package.json
 ├── frontend/
-│   ├── index.html             # App shell & markup
-│   ├── style.css              # All styles (design tokens, layout, components)
-│   └── app.js                 # Fetch logic, rendering, event handlers
+│   ├── index.html                   # Page markup
+│   ├── style.css                    # Styles (design tokens, layout, components)
+│   ├── js/
+│   │   ├── main.js                  # Entry point: page setup and event binding
+│   │   ├── config.js                # Constants: API base URL, limits, category colours
+│   │   ├── dom.js                   # All DOM element references
+│   │   ├── state.js                 # Shared state: budget, last API response
+│   │   ├── controllers/             # What happens on each user action
+│   │   │   ├── expenseController.js #   load, add, delete, filter
+│   │   │   ├── budgetController.js  #   set and clear the monthly budget
+│   │   │   └── exportController.js  #   CSV download
+│   │   ├── services/
+│   │   │   ├── api.js               # The only module that calls the backend
+│   │   │   └── storage.js           # Safe localStorage access
+│   │   ├── ui/                      # Rendering: stats, chart, table, budget bar, toasts
+│   │   └── utils/                   # Pure helpers: formatting, validation, CSV
+│   ├── test/                        # Unit tests for the pure frontend modules
+│   └── package.json                 # Only enables the frontend tests
 ├── LICENSE
-├── package.json               # Convenience scripts for the whole project
+├── package.json                     # Scripts for the whole project
 └── README.md
 ```
+
+---
+
+## Architecture
+
+Both halves of the application are split into layers, and each layer has one
+responsibility. A layer only calls the layer below it.
+
+**Backend request flow**
+
+```
+HTTP request
+  → routes/        reads the request, picks the status code
+  → validation/    checks and cleans the input (pure functions)
+  → services/      applies the business rules (no HTTP, no files)
+  → storage/       reads and writes expenses.json (the only file access)
+```
+
+`server.js` only starts the server. `src/app.js` builds the Express app in a
+function, so the tests can create an app against a temporary data file.
+Every configurable value (port, paths, limits, categories) lives in
+`src/config/`, so no other module hard-codes one. Replacing the JSON file with
+a database would only change `storage/expenseStore.js`.
+
+**Frontend flow**
+
+```
+user action
+  → main.js          connects the DOM event to a controller
+  → controllers/     decides what happens
+  → utils/           validates and formats (pure, unit-tested)
+  → services/api.js  sends the request to the backend
+  → state.js         keeps the response
+  → ui/              renders it with textContent (never innerHTML)
+```
+
+The frontend uses native ES modules (`<script type="module">`), so no build
+step or bundler is needed. Modules that touch neither the DOM nor the network
+(`utils/`, `config.js`) run unchanged in Node, which is what the frontend
+tests rely on.
 
 ---
 
@@ -107,11 +175,12 @@ Open `http://localhost:3001/health` — you should see:
 { "status": "ok", "message": "PocketBudget backend is running" }
 ```
 
-### Opening the frontend directly from disk (optional)
+### Why the page must be opened through the server
 
-The app also works if you open `frontend/index.html` straight from the file
-system. In that case it falls back to talking to `http://localhost:3001`, so the
-backend must be running. Serving it from the backend (above) is recommended.
+Always open the app at `http://localhost:3001`. Opening `frontend/index.html`
+directly from disk does not work, because browsers refuse to load ES modules
+from `file://` addresses. The Express server serves the page and the API from
+the same address, so no extra setup is needed.
 
 ---
 
@@ -200,27 +269,31 @@ suite:
 
 ## Running Tests
 
-The backend has an automated test suite using Node's built-in test runner — no
-extra dependencies required. Tests run against a temporary data file, so your
-real `expenses.json` is never modified.
+Both halves have automated tests using Node's built-in test runner, so no
+extra dependencies are required. The backend tests run against a temporary
+data file, so your real `expenses.json` is never modified.
 
 ```bash
-npm test           # from the project root
+npm test                 # from the project root: runs backend, then frontend
+npm run test:backend     # backend only
+npm run test:frontend    # frontend only
 ```
 
-Expected output ends with:
+Expected output: `# tests 61 / # pass 61 / # fail 0` for the backend, then
+`# tests 16 / # pass 16 / # fail 0` for the frontend.
 
-```
-# tests 47
-# pass 47
-# fail 0
-```
+| Suite    | File                       | Tests | What it covers                                                                 |
+| -------- | -------------------------- | ----- | ------------------------------------------------------------------------------ |
+| Backend  | `api.test.js`              | 47    | Every endpoint over HTTP: creation, validation errors, filters, totals, deletion, 404s, corrupt/missing/empty data file |
+| Backend  | `validation.test.js`       | 9     | Validation rules called directly, without a server                             |
+| Backend  | `expenseService.test.js`   | 5     | Business logic with an in-memory store, without files                          |
+| Frontend | `format.test.js`           | 7     | Euro and date formatting, local date, category colours, sorting                |
+| Frontend | `validation.test.js`       | 6     | Add-expense form and budget checks                                             |
+| Frontend | `csv.test.js`              | 3     | CSV quoting, formula protection, BOM and line endings                          |
 
-The suite covers: health and 404 handling, expense creation, amount/category/
-date/note validation (including every invalid case listed above), month and
-category filtering, totals and rounding, deletion, and data-file resilience
-(corrupt file, wrong shape, empty file, missing file, missing directory,
-hand-edited bad records, temp-file cleanup).
+The unit tests are only possible because of the modular structure: validation
+and business logic can be tested without starting a server, and the frontend
+helpers without a browser.
 
 ### Manual test cases (UI)
 

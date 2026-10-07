@@ -279,6 +279,12 @@
     </div>
     <!-- /app-shell -->
 
-    <script src="app.js"></script>
+    <!--
+      The frontend is split into ES modules under js/. main.js is the entry
+      point and imports the rest. Module scripts are deferred automatically,
+      so the DOM is ready when main.js runs. ES modules need to be served over
+      HTTP, which the Express backend does at http://localhost:3001.
+    -->
+    <script type="module" src="js/main.js"></script>
   </body>
 </html>

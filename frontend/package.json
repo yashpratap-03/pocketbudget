@@ -1,0 +1,15 @@
+{
+  "name": "pocketbudget-frontend",
+  "version": "1.0.0",
+  "description": "Browser frontend for PocketBudget (DLBCSPJWD01). Served by the backend; this file only enables the unit tests.",
+  "author": "Yash Pratap Singh",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18.13.0"
+  }
+}
